@@ -1,38 +1,32 @@
+<!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
   <div class="container">
-    <header class="row">
+    <header id="top-header" class="row">
       <div class="col-md-6">
         <h1>App Name</h1>
       </div>
       <div class="col-md-6">
-        <button type="button" class="btn btn-primary">Logout</button>
+        <button type="button"  id="log-in-out-button" class="btn btn-primary">Logout</button>
       </div>
     </header>
     <section class="row">
       <div class="col-md-12">
         <a href="#">
-          <button class="btn btn-default">
+          <button id="new-item-button" class="btn btn-default link-color">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>new item
           </button>
         </a>
     </section>
-    <section class="row>">
-      <header class="col-md-6">
-        <h2>Categories</h2>
-      </header>
-      <header class="col-md-6">
-        <h2>Lastest Items</h2>
-      </header>
-    </section>
     <section class="row">
       <div class="col-md-6">
+        <h2>Categories</h2>
         <div class="list-group">
           <a href="#" class="list-group-item">Plantas Terrestres</a>
           <a href="#" class="list-group-item">Plantas Aquáticas</a>
@@ -45,6 +39,7 @@
         </div>
       </div>
       <div class="col-md-6">
+        <h2>Items</h2>
         <div class="list-group">
           <a href="#" class="list-group-item">Jiboia</a>
           <a href="#" class="list-group-item">Bromelia</a>

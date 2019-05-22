@@ -3,26 +3,26 @@
 
 <head>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
   <div class="container">
-    <header class="row">
+    <header id="top-header" class="row">
       <div class="col-md-6">
         <h1>App Name</h1>
       </div>
       <div class="col-md-6">
-        <button type="button" class="btn btn-primary">Logout</button>
+        <button type="button"  id="log-in-out-button" class="btn btn-primary">Login</button>
       </div>
     </header>
-    <section class="row">
+    <section class="row margin-top-sections">
       <div class="col-md-12">
         <header>
           <h2>Delete Item</h2>
         </header>
         <p>Are you shure you want to delete?</p>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">Delete</button>
     </section>
   </div>
 </body>
