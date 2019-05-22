@@ -1,0 +1,28 @@
+#top-header {
+  background-color: yellow;
+}
+
+#log-in-out-button {
+  float: right;
+  margin-top: 1.5%;
+}
+
+#new-item-button {
+  float: right;
+}
+
+.list-group-item {
+  border: 0px;
+}
+
+#item-description {
+  margin-top: 4%;
+}
+
+.margin-top-sections {
+  margin-top: 3.5%;
+}
+
+.link-color {
+  color: red;
+}
