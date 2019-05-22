@@ -5,20 +5,17 @@ app = Flask(__name__)
 # Create the app.route functions when the user sends the URI "/category"
 @app.route('/category')
 def catalogFunction():
-    if request.method == 'GET':
-        return render_template('catalog.html')
+    return render_template('catalog.html')
 
 # Create the app.route functions when the user sends the URI "/category/category_id/items"
 @app.route('/category/<int:category_id>/items')
 def categoryFunction(category_id):
-    if request.method == 'GET':
-        return render_template('category.html')
+    return render_template('category.html')
 
 # Create the app.route functions when the user sends the URI "/category/category_id/item_id"
 @app.route('/category/<int:category_id>/<int:item_id>')
 def itemFunction(category_id, item_id):
-    if request.method == 'GET':
-        return render_template('item.html')
+    return render_template('item.html')
 
 
 if __name__ == '__main__':
