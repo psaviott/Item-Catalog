@@ -20,11 +20,12 @@ class Category(Base):
         }
 
 
-class Plant(Base):
-    __tablename__ = 'plant'
+class Item(Base):
+    __tablename__ = 'item'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(80), nullable=False)
+    name = Column(String(50), nullable=False)
+    description = Column(String(1000), nullable=False)
     category_id = Column(Integer, ForeignKey('category.id'))
     category = relationship(Category)
 
@@ -33,7 +34,9 @@ class Plant(Base):
         return {
             'id': self.id,
             'name': self.name,
-            'category': self.category
+            'description': self.description,
+            'category': self.category,
+            'category_id': self.category_id
         }
 
 

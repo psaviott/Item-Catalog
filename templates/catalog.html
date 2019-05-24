@@ -17,6 +17,14 @@
       </div>
     </header>
     <section class="row">
+      <div class="col-md-12">
+        <a href="#">
+          <button id="new-item-button" class="btn btn-default link-color">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>new category
+          </button>
+        </a>
+    </section>
+    <section class="row">
       <div id="item-description" class="col-md-6">
         <h2>Categories</h2>
         {% for i in plantas %}
@@ -26,17 +34,12 @@
         {% endfor %}
       </div>
       <div id="item-description" class="col-md-6">
-        <h2>Lastest Items</h2>
-        <div class="list-group">
-          <a href="#" class="list-group-item">Plantas Carnívoras</a>
-          <a href="#" class="list-group-item">Plantas Ornamentais</a>
-          <a href="#" class="list-group-item">Plantas Aéreas</a>
-          <a href="#" class="list-group-item">Plantas de Jardim</a>
-          <a href="#" class="list-group-item">Plantas Aquaticas</a>
-          <a href="#" class="list-group-item">Plantas Medicinais e Ervas</a>
-          <a href="#" class="list-group-item">Plantas Tóxicas ou Venenosas</a>
-          <a href="#" class="list-group-item">Plantas Terrestres</a>
-        </div>
+        <h2>Last added</h2>
+        {% for i in itemName %}
+          <div class="list-group">
+            <a href="#" class="list-group-item">{{ i.name }}</a>
+          </div>
+        {% endfor %}
       </div>
     </section>
   </div>

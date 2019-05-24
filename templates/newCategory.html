@@ -16,24 +16,18 @@
         <button type="button"  id="log-in-out-button" class="btn btn-primary">Logout</button>
       </div>
     </header>
-    <section class="row>">
-      <article id="item-description" class="col-md-12">
-          <h2>{{ itemName.name }}</h2>
-          <p>{{ itemName.description }}
-          </p>
-          <a href="#">
-    				<button class="btn btn-default link-color">
-    					<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>Edit
-    				</button>
-    			</a>
-          <a href="#">
-    				<button class="btn btn-default link-color">
-    					<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>Delete
-    				</button>
-    			</a>
-      </article>
+    <section class="row margin-top-sections">
+      <header class="col-md-12">
+        <h2>Create new Category</h2>
+      </header>
+      <form class="col-md-12">
+        <div class="form-group">
+          <label>Category Name</label>
+          <input type="text" class="form-control" id="inputTitle">
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+      </form>
     </section>
   </div>
 </body>
-
 </html>
