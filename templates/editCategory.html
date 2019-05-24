@@ -18,6 +18,7 @@
     </header>
     <section class="row margin-top-sections">
       <header class="col-md-12">
+
         <!--MESSAGE FLASHING EXAMPLE -->
         {% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -26,16 +27,16 @@
         {% endfor %}
         {% endif %}
         {% endwith %}
-        <h2>New category created</h2>
+        
+        <h2>Edit Category</h2>
       </header>
-      <form action="{{url_for('newCategoryFunction', category_id=category_id )}}" method='POST'>
+      <form action="{{url_for('editCategoryFunction', category_id=category2.id)}}" method='POST'>
         <div class="form-group">
           <label>Name:</label>
-          <input type='text' size='30' name='name'>
-          <input type='submit' value='Create'>
+          <input type='text' size='30' name='name' placeholder='{{category2.name}}'>
+          <input type='submit' value='Edit'>
         </div>
       </form>
-
       <a href="{{ url_for('catalogFunction')}}"> Cancel </a>
     </section>
   </div>

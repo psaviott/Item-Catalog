@@ -23,6 +23,14 @@
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>new category
           </button>
         </a>
+        <!--MESSAGE FLASHING EXAMPLE -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <p><strong>{{message}}</strong></p>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
     </section>
     <section class="row">
       <div id="item-description" class="col-md-6">
