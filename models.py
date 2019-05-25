@@ -35,16 +35,9 @@ class Item(Base):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'category': self.category,
-            'category_id': self.category_id
         }
 
 
-
-
-
-
-
-
 engine = create_engine('sqlite:///plants.db')
+
 Base.metadata.create_all(engine)

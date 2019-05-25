@@ -12,6 +12,19 @@ session = DBSession()
 
 app = Flask(__name__)
 
+# Add JSON API Endpoint for categories
+@app.route('/category/JSON')
+def categoriesJSON():
+    category = session.query(Category)
+    return jsonify(Categories=[i.serialize for i in category])
+
+# Add JSON API Endpoint for a categoty item
+@app.route('/category/<int:category_id>/items/JSON')
+def categoriesItemsJSON(category_id):
+    category2 = session.query(Category).filter_by(id=category_id).one()
+    items = session.query(Item).filter_by(category_id=category_id).all()
+    return jsonify(Items=[i.serialize for i in items])
+
 # Create the app.route function to list all categories
 @app.route('/category')
 def catalogFunction():
@@ -21,7 +34,6 @@ def catalogFunction():
         return render_template('catalog.html', plantas=category)
     else:
         return render_template('catalog.html', plantas=category)
-        # return jsonify(Categories=[i.serialize for i in category])
 
 # Create the app.route function to display the items for the selected category
 @app.route('/category/<int:category_id>/items')
@@ -34,14 +46,13 @@ def categoryFunction(category_id):
         return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
     else:
         return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
-        # return jsonify(Items=[i.serialize for i in items])
 
 # Create the app.route function to list all items for the category
     # add message to inform the user if the category or item not exist
 @app.route('/category/<int:category_id>/items/<int:item_id>')
 def itemFunction(category_id, item_id):
     category2 = session.query(Category).filter_by(id=category_id).one()
-    items = session.query(Item).filter_by(id=item_id).one()
+    items = session.query(Item).filter_by(category_id=category_id).one()
     return render_template('item.html', itemName=items)
 
 
