@@ -16,6 +16,18 @@
         <button type="button"  id="log-in-out-button" class="btn btn-primary">Logout</button>
       </div>
     </header>
+    <div class="row">
+      <div class="col-md-12">
+        <!--MESSAGE FLASHING EXAMPLE -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <p><strong>{{message}}</strong></p>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+      </div>
+    </div>
     <section class="row>">
       <article id="item-description" class="col-md-12">
           <h2>{{ itemName.name }}</h2>

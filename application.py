@@ -12,7 +12,7 @@ session = DBSession()
 
 app = Flask(__name__)
 
-# Create the app.route functions when the user sends the URI "/category"
+# Create the app.route function to list all categories
 @app.route('/category')
 def catalogFunction():
     category = session.query(Category)
@@ -23,19 +23,21 @@ def catalogFunction():
         return render_template('catalog.html', plantas=category)
         # return jsonify(Categories=[i.serialize for i in category])
 
-# Create the app.route functions when the user sends the URI "/category/category_id/items"
+# Create the app.route function to display the items for the selected category
 @app.route('/category/<int:category_id>/items')
 def categoryFunction(category_id):
     category = session.query(Category)
     category2 = session.query(Category).filter_by(id=category_id).one()
     items = session.query(Item).filter_by(category_id=category_id)
     if items == 0:
-        return "No items yet"
+        flash("You have no items yet!")
+        return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
     else:
         return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
         # return jsonify(Items=[i.serialize for i in items])
 
 # Create the app.route function to list all items for the category
+    # add message to inform the user if the category or item not exist
 @app.route('/category/<int:category_id>/items/<int:item_id>')
 def itemFunction(category_id, item_id):
     category2 = session.query(Category).filter_by(id=category_id).one()
@@ -83,6 +85,8 @@ def deleteCategoryFunction(category_id):
         return redirect(url_for('catalogFunction', category2=category2))
     else:
         return render_template('deleteCategory.html', category2=category2)
+
+
 # temporary
 @app.route('/category/add', methods=['GET', 'POST'])
 def makeANewPuppy():
