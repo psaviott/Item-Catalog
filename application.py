@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, jsonify, url_for, redirect, flash
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.ext.declarative import declarative_base
 from models import Base, Item, Category
 
 
@@ -18,12 +19,18 @@ def categoriesJSON():
     category = session.query(Category)
     return jsonify(Categories=[i.serialize for i in category])
 
-# Add JSON API Endpoint for a categoty item
+# Add JSON API Endpoint for a category items
 @app.route('/category/<int:category_id>/items/JSON')
 def categoriesItemsJSON(category_id):
     category2 = session.query(Category).filter_by(id=category_id).one()
     items = session.query(Item).filter_by(category_id=category_id).all()
     return jsonify(Items=[i.serialize for i in items])
+
+# Add JSON API Endpoint for a item
+@app.route('/category/<int:category_id>/items/<int:item_id>/JSON')
+def itemJSON(category_id, item_id):
+    items = session.query(Item).filter_by(id=item_id).one()
+    return jsonify(Items=items.serialize)
 
 # Create the app.route function to list all categories
 @app.route('/category')
@@ -47,12 +54,12 @@ def categoryFunction(category_id):
     else:
         return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
 
-# Create the app.route function to list all items for the category
+# Create the app.route function to display item
     # add message to inform the user if the category or item not exist
 @app.route('/category/<int:category_id>/items/<int:item_id>')
 def itemFunction(category_id, item_id):
     category2 = session.query(Category).filter_by(id=category_id).one()
-    items = session.query(Item).filter_by(category_id=category_id).one()
+    items = session.query(Item).filter_by(id=item_id).one()
     return render_template('item.html', itemName=items)
 
 
@@ -113,6 +120,25 @@ def newItemFunction(category_id):
     else:
         return render_template('newItem.html', category=category, category2=category2)
 
+# Create the app.route function to edit item
+@app.route('/category/<int:category_id>/items/<int:item_id>/edit', methods=['GET', 'POST'])
+def editItemFunction(category_id, item_id):
+    category = session.query(Category)
+    category2 = session.query(Category).filter_by(id=category_id).one()
+    editItem = session.query(Item).filter_by(id=item_id).one()
+    if request.method == 'POST':
+        if request.form['name']:
+            editItem.name = request.form['name']
+        if request.form['description']:
+            editItem.description = request.form['description']
+        if request.form['category']:
+            editItem.category_name = request.form['category']
+        session.add(editItem)
+        session.commit()
+        flash("Item seccessfully edited!")
+        return redirect(url_for('itemFunction', category_id=category_id, item_id=item_id))
+    else:
+        return render_template('editItem.html', category=category, category2=category2, editItem=editItem)
 
 # temporary
 @app.route('/category/add', methods=['GET', 'POST'])
