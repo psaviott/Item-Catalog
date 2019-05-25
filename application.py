@@ -82,9 +82,25 @@ def deleteCategoryFunction(category_id):
         session.delete(category2)
         session.commit()
         flash("Category seccessfully deleted!")
-        return redirect(url_for('catalogFunction', category2=category2))
+        return redirect(url_for('categoryFunction', category2=category2))
     else:
-        return render_template('deleteCategory.html', category2=category2)
+        return render_template('category.html', category2=category2)
+
+# Create the app.route function to add new item to category
+@app.route('/category/<int:category_id>/items/new', methods=['GET', "POST"])
+def newItemFunction(category_id):
+    category = session.query(Category)
+    category2 = session.query(Category).filter_by(id=category_id).one()
+    if request.method == 'POST':
+        newItem = Item(
+            name=request.form['name'], description=request.form['description'],
+            category_id=category_id)
+        session.add(newItem)
+        session.commit()
+        flash("New menu item created!")
+        return redirect(url_for('categoryFunction', category_id=category_id))
+    else:
+        return render_template('newItem.html', category=category, category2=category2)
 
 
 # temporary

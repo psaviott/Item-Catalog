@@ -20,27 +20,34 @@
       <header class="col-md-12">
         <h2>New Item</h2>
       </header>
-      <form class="col-md-12">
+      <!--MESSAGE FLASHING EXAMPLE -->
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      {% for message in messages %}
+      <p><strong>{{message}}</strong></p>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+      <form class="col-md-12" action="{{url_for('newItemFunction', category_id=category2.id )}}" method='POST'>
         <div class="form-group">
           <label>Item Name</label>
-          <input type="text" class="form-control" id="inputTitle">
+          <input type="text" class="form-control" id="inputTitle" name='name'>
         </div>
         <div class="form-group">
           <label>Description</label>
-          <textarea class="form-control" id="inputDescription" rows="3"></textarea>
+          <textarea class="form-control" id="inputDescription" rows="3" name='description'></textarea>
         </div>
         <div class="form-group">
           <label>Category</label>
           <select class="form-control" id="inputCategory">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-            <option>5</option>
+            {% for i in category %}
+              <option>{{ i.name }}</option>
+            {% endfor %}
           </select>
         </div>
-        <button type="submit" class="btn btn-primary">Create</button>
+        <input type='submit' value='Create'>
       </form>
+      <a href="{{ url_for('categoryFunction', category_id = category2.id)}}"> Cancel </a>
     </section>
   </div>
 </body>
