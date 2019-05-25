@@ -18,7 +18,7 @@
     </header>
     <section class="row">
       <div class="col-md-12">
-        <a href="#">
+        <a href="{{ url_for('newCategoryFunction')}}">
           <button id="new-item-button" class="btn btn-default link-color">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>new category
           </button>
@@ -37,7 +37,7 @@
         <h2>Categories</h2>
         {% for i in plantas %}
           <div class="list-group">
-            <a href="#" class="list-group-item">{{ i.name }}</a>
+            <a href="{{ url_for('categoryFunction', category_id=i.id)}}" class="list-group-item">{{ i.name }}</a>
           </div>
         {% endfor %}
       </div>
