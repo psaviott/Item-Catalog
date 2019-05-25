@@ -17,13 +17,19 @@
       </div>
     </header>
     <section class="row margin-top-sections">
-      <div class="col-md-12">
-        <header>
-          <h2>Delete Item</h2>
-        </header>
-        <p>Are you shure you want to delete?</p>
-        <button type="submit" class="btn btn-primary">Delete</button>
-    </section>
-  </div>
+      <!--MESSAGE FLASHING EXAMPLE -->
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      {% for message in messages %}
+      <p><strong>{{message}}</strong></p>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      <form action="{{ url_for('deleteItemFunction', category_id=item.category_id, item_id=item.id)}}" method='POST'>
+        <div class='form-group'>
+          <input type='submit' , value='Delete'>
+        </div>
+      </form>
 </body>
 </html>

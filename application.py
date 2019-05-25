@@ -95,14 +95,15 @@ def editCategoryFunction(category_id):
 # Create the app.route function for delete a category
 @app.route('/category/<int:category_id>/delete', methods=['GET', "POST"])
 def deleteCategoryFunction(category_id):
+    category = session.query(Category)
     category2 = session.query(Category).filter_by(id=category_id).one()
     if request.method == 'POST':
         session.delete(category2)
         session.commit()
         flash("Category seccessfully deleted!")
-        return redirect(url_for('categoryFunction', category2=category2))
+        return redirect(url_for('catalogFunction', plantas=category))
     else:
-        return render_template('category.html', category2=category2)
+        return render_template('deleteCategory.html', category2=category2)
 
 # Create the app.route function to add new item to category
 @app.route('/category/<int:category_id>/items/new', methods=['GET', "POST"])
@@ -139,6 +140,19 @@ def editItemFunction(category_id, item_id):
         return redirect(url_for('itemFunction', category_id=category_id, item_id=item_id))
     else:
         return render_template('editItem.html', category=category, category2=category2, editItem=editItem)
+
+# Create the app.route function to delete a item
+@app.route('/category/<int:category_id>/items/<int:item_id>/delete', methods=['GET', "POST"])
+def deleteItemFunction(category_id, item_id):
+    category2 = session.query(Category).filter_by(id=category_id).one()
+    deleteItem = session.query(Item).filter_by(id=item_id).one()
+    if request.method == 'POST':
+        session.delete(deleteItem)
+        session.commit()
+        flash("Menu item seccessfully deleted!")
+        return redirect(url_for('itemFunction', category_id=category2.id, item_id=deleteItem.id))
+    else:
+        return render_template('deleteItem.html', category_id=category_id, item=deleteItem)
 
 # temporary
 @app.route('/category/add', methods=['GET', 'POST'])
