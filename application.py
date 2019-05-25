@@ -42,27 +42,6 @@ def catalogFunction():
     else:
         return render_template('catalog.html', plantas=category)
 
-# Create the app.route function to display the items for the selected category
-@app.route('/category/<int:category_id>/items')
-def categoryFunction(category_id):
-    category = session.query(Category)
-    category2 = session.query(Category).filter_by(id=category_id).one()
-    items = session.query(Item).filter_by(category_id=category_id)
-    if items == 0:
-        flash("You have no items yet!")
-        return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
-    else:
-        return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
-
-# Create the app.route function to display item
-    # add message to inform the user if the category or item not exist
-@app.route('/category/<int:category_id>/items/<int:item_id>')
-def itemFunction(category_id, item_id):
-    category2 = session.query(Category).filter_by(id=category_id).one()
-    items = session.query(Item).filter_by(id=item_id).one()
-    return render_template('item.html', itemName=items)
-
-
 # Create the app.route functions for create a new category
 @app.route('/category/new', methods=['GET', "POST"])
 def newCategoryFunction():
@@ -105,6 +84,19 @@ def deleteCategoryFunction(category_id):
     else:
         return render_template('deleteCategory.html', category2=category2)
 
+# Create the app.route function to display the items for the selected category
+    # Fix: display messagem whem have no items
+@app.route('/category/<int:category_id>/items')
+def categoryFunction(category_id):
+    category = session.query(Category)
+    category2 = session.query(Category).filter_by(id=category_id).one()
+    items = session.query(Item).filter_by(category_id=category2.id)
+    if not items:
+        flash("You have no items yet!")
+        return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
+    else:
+        return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
+
 # Create the app.route function to add new item to category
 @app.route('/category/<int:category_id>/items/new', methods=['GET', "POST"])
 def newItemFunction(category_id):
@@ -120,6 +112,14 @@ def newItemFunction(category_id):
         return redirect(url_for('categoryFunction', category_id=category_id))
     else:
         return render_template('newItem.html', category=category, category2=category2)
+
+# Create the app.route function to display item
+@app.route('/category/<int:category_id>/items/<int:item_id>')
+def itemFunction(category_id, item_id):
+    category2 = session.query(Category).filter_by(id=category_id).one()
+    items = session.query(Item).filter_by(id=item_id).one()
+    return render_template('item.html', itemName=items)
+
 
 # Create the app.route function to edit item
 @app.route('/category/<int:category_id>/items/<int:item_id>/edit', methods=['GET', 'POST'])
@@ -150,7 +150,7 @@ def deleteItemFunction(category_id, item_id):
         session.delete(deleteItem)
         session.commit()
         flash("Menu item seccessfully deleted!")
-        return redirect(url_for('itemFunction', category_id=category2.id, item_id=deleteItem.id))
+        return redirect(url_for('categoryFunction', category_id=category2.id))
     else:
         return render_template('deleteItem.html', category_id=category_id, item=deleteItem)
 
