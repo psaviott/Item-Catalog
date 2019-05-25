@@ -118,7 +118,7 @@ def newItemFunction(category_id):
 def itemFunction(category_id, item_id):
     category2 = session.query(Category).filter_by(id=category_id).one()
     items = session.query(Item).filter_by(id=item_id).one()
-    return render_template('item.html', itemName=items)
+    return render_template('item.html', itemName=items, category=category2)
 
 
 # Create the app.route function to edit item
