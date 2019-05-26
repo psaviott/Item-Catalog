@@ -17,7 +17,8 @@ app = Flask(__name__)
 @app.route('/category/JSON')
 def categoriesJSON():
     category = session.query(Category)
-    return jsonify(Categories=[i.serialize for i in category])
+    items = session.query(Item).filter_by(category_id=Item.category_id).all()
+    return jsonify(Categories=[i.serialize for i in category], Items=[i.serialize for i in items])
 
 # Add JSON API Endpoint for a category items
 @app.route('/category/<int:category_id>/items/JSON')

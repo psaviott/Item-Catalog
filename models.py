@@ -32,6 +32,7 @@ class Item(Base):
     @property
     def serialize(self):
         return {
+            'category_id': self.category_id,
             'id': self.id,
             'name': self.name,
             'description': self.description,
