@@ -1,16 +1,21 @@
-from flask import Flask, request, render_template, jsonify, url_for, redirect, flash
+from flask import Flask, request, render_template, jsonify, url_for, redirect, flash, abort, g, make_response
+import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
-from models import Base, Item, Category
+from models import Base, Item, Category, User
+from flask.ext.httpauth import HTTPBasicAuth
+import json
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import FlowExchangeError
+import httplib2
 
+auth = HTTPBasicAuth()
 
 engine = create_engine('sqlite:///plants.db')
 Base.metadata.bind = engine
-
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
-
 app = Flask(__name__)
 
 # Add JSON API Endpoint for categories
