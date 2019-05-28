@@ -4,11 +4,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from models import Base, Item, Category, User
-from flask.ext.httpauth import HTTPBasicAuth
+from flask import session as login_session
+from flask_httpauth import HTTPBasicAuth
 import json
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
+
 
 auth = HTTPBasicAuth()
 
@@ -17,6 +19,12 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 app = Flask(__name__)
+
+
+@app.route('/login')
+def showLogin():
+    return render_template('login.html')
+
 
 # Add JSON API Endpoint for categories
 # Fix: display items into the correct catalog
@@ -44,16 +52,21 @@ def itemJSON(category_id, item_id):
 @app.route('/category')
 def catalogFunction():
     category = session.query(Category)
-    if category == 0:
-        flash("You have no categories yet!")
-        return render_template('catalog.html', plantas=category)
+    if 'username' not in login_session:
+        return render_template('publicCatalog.html', plantas=category)
     else:
-        return render_template('catalog.html', plantas=category)
+        if category == 0:
+            flash("You have no categories yet!")
+            return render_template('catalog.html', plantas=category)
+        else:
+            return render_template('catalog.html', plantas=category)
 
 # Create the app.route functions for create a new category
 @app.route('/category/new', methods=['GET', "POST"])
 def newCategoryFunction():
     category = session.query(Category)
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
         newCategory = Category(
             name=request.form['name'])
@@ -69,6 +82,8 @@ def newCategoryFunction():
 @app.route('/category/<int:category_id>/edit', methods=['GET', "POST"])
 def editCategoryFunction(category_id):
     category2 = session.query(Category).filter_by(id=category_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
         if request.form['name']:
             category2.name = request.form['name']
@@ -84,6 +99,8 @@ def editCategoryFunction(category_id):
 def deleteCategoryFunction(category_id):
     category = session.query(Category)
     category2 = session.query(Category).filter_by(id=category_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
         session.delete(category2)
         session.commit()
@@ -99,17 +116,32 @@ def categoryFunction(category_id):
     category = session.query(Category)
     category2 = session.query(Category).filter_by(id=category_id).one()
     items = session.query(Item).filter_by(category_id=category2.id)
-    if not items:
-        flash("You have no items yet!")
-        return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
+    if 'username' not in login_session:
+        return render_template('publicCategory.html', plantas=category, plantas2=category2, itemName=items)
     else:
-        return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
+        if not items:
+            flash("You have no items yet!")
+            return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
+        else:
+            return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
+
+# Create the app.route function to display item
+@app.route('/category/<int:category_id>/items/<int:item_id>')
+def itemFunction(category_id, item_id):
+    category2 = session.query(Category).filter_by(id=category_id).one()
+    items = session.query(Item).filter_by(id=item_id).one()
+    if 'username' not in login_session:
+        return render_template('publicItem.html', itemName=items, category=category2)
+    else:
+        return render_template('item.html', itemName=items, category=category2)
 
 # Create the app.route function to add new item to category
 @app.route('/category/<int:category_id>/items/new', methods=['GET', "POST"])
 def newItemFunction(category_id):
     category = session.query(Category)
     category2 = session.query(Category).filter_by(id=category_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
         newItem = Item(
             name=request.form['name'], description=request.form['description'],
@@ -121,13 +153,6 @@ def newItemFunction(category_id):
     else:
         return render_template('newItem.html', category=category, category2=category2)
 
-# Create the app.route function to display item
-@app.route('/category/<int:category_id>/items/<int:item_id>')
-def itemFunction(category_id, item_id):
-    category2 = session.query(Category).filter_by(id=category_id).one()
-    items = session.query(Item).filter_by(id=item_id).one()
-    return render_template('item.html', itemName=items, category=category2)
-
 
 # Create the app.route function to edit item
 @app.route('/category/<int:category_id>/items/<int:item_id>/edit', methods=['GET', 'POST'])
@@ -135,6 +160,8 @@ def editItemFunction(category_id, item_id):
     category = session.query(Category)
     category2 = session.query(Category).filter_by(id=category_id).one()
     editItem = session.query(Item).filter_by(id=item_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
         if request.form['name']:
             editItem.name = request.form['name']
@@ -154,6 +181,8 @@ def editItemFunction(category_id, item_id):
 def deleteItemFunction(category_id, item_id):
     category2 = session.query(Category).filter_by(id=category_id).one()
     deleteItem = session.query(Item).filter_by(id=item_id).one()
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
         session.delete(deleteItem)
         session.commit()
