@@ -26,7 +26,7 @@
         <h2>Last added</h2>
         {% for i in itemName %}
           <div class="list-group">
-            <a href="#" class="list-group-item">{{ i.name }}</a>
+            <a href="{{ url_for('itemFunction', category_id=i.category.id, item_id=i.id)}}" class="list-group-item">{{ i.name }} ({{ i.category.name }})</a>
           </div>
         {% endfor %}
       </div>

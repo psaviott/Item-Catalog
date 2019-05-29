@@ -78,7 +78,6 @@ def itemJSON(category_id, item_id):
     return jsonify(Items=items.serialize)
 
 # Create the app.route function to list all categories
-# Fix: Display message when has no categories
 @app.route('/category')
 def catalogFunction():
     category = session.query(Category)
@@ -148,7 +147,6 @@ def deleteCategoryFunction(category_id):
         return render_template('deleteCategory.html', category2=category2)
 
 # Create the app.route function to display the items for the selected category
-# Fix: display messagem whem have no items
 @app.route('/category/<int:category_id>/items')
 def categoryFunction(category_id):
     category = session.query(Category)
