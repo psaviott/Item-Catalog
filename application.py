@@ -116,7 +116,9 @@ def newCategoryFunction():
 # Create the app.route function for edit a category
 @app.route('/category/<int:category_id>/edit', methods=['GET', "POST"])
 def editCategoryFunction(category_id):
-    category2 = session.query(Category).filter_by(id=category_id).one()
+    category2 = session.query(Category).filter_by(id=category_id).first()
+    if not hasattr(category2, 'id'):
+        return "this category not exist"
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
@@ -133,8 +135,10 @@ def editCategoryFunction(category_id):
 @app.route('/category/<int:category_id>/delete', methods=['GET', "POST"])
 def deleteCategoryFunction(category_id):
     category = session.query(Category)
-    category2 = session.query(Category).filter_by(id=category_id).one()
+    category2 = session.query(Category).filter_by(id=category_id).first()
     deleteItem = session.query(Item).filter_by(id=category_id).all()
+    if not hasattr(category2, 'id'):
+        return "this category not exist"
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
@@ -151,7 +155,9 @@ def deleteCategoryFunction(category_id):
 @app.route('/category/<int:category_id>/items')
 def categoryFunction(category_id):
     category = session.query(Category)
-    category2 = session.query(Category).filter_by(id=category_id).one()
+    category2 = session.query(Category).filter_by(id=category_id).first()
+    if not hasattr(category2, 'id'):
+        return "this category not exist"
     items = session.query(Item).filter_by(category_id=category2.id)
     if 'username' not in login_session:
         if items.count() == 0:
@@ -169,8 +175,12 @@ def categoryFunction(category_id):
 # Create the app.route function to display item
 @app.route('/category/<int:category_id>/items/<int:item_id>')
 def itemFunction(category_id, item_id):
-    category2 = session.query(Category).filter_by(id=category_id).one()
-    items = session.query(Item).filter_by(id=item_id).one()
+    category2 = session.query(Category).filter_by(id=category_id).first()
+    if not hasattr(category2, 'id'):
+        return "this category not exist"
+    items = session.query(Item).filter_by(id=item_id).first()
+    if not hasattr(items, 'id'):
+        return "this item not exist"
     if 'name' not in login_session:
         return render_template('publicItem.html', itemName=items, category=category2)
     else:
@@ -180,7 +190,9 @@ def itemFunction(category_id, item_id):
 @app.route('/category/<int:category_id>/items/new', methods=['GET', "POST"])
 def newItemFunction(category_id):
     category = session.query(Category)
-    category2 = session.query(Category).filter_by(id=category_id).one()
+    category2 = session.query(Category).filter_by(id=category_id).first()
+    if not hasattr(category2, 'id'):
+        return "this category not exist"
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
@@ -199,8 +211,12 @@ def newItemFunction(category_id):
 @app.route('/category/<int:category_id>/items/<int:item_id>/edit', methods=['GET', 'POST'])
 def editItemFunction(category_id, item_id):
     category = session.query(Category)
-    category2 = session.query(Category).filter_by(id=category_id).one()
-    editItem = session.query(Item).filter_by(id=item_id).one()
+    category2 = session.query(Category).filter_by(id=category_id).first()
+    if not hasattr(category2, 'id'):
+        return "this category not exist"
+    editItem = session.query(Item).filter_by(id=item_id).first()
+    if not hasattr(editItem, 'id'):
+        return "this item not exist"
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
@@ -220,8 +236,12 @@ def editItemFunction(category_id, item_id):
 # Create the app.route function to delete a item
 @app.route('/category/<int:category_id>/items/<int:item_id>/delete', methods=['GET', "POST"])
 def deleteItemFunction(category_id, item_id):
-    category2 = session.query(Category).filter_by(id=category_id).one()
-    deleteItem = session.query(Item).filter_by(id=item_id).one()
+    category2 = session.query(Category).filter_by(id=category_id).first()
+    if not hasattr(category2, 'id'):
+        return "this category not exist"
+    deleteItem = session.query(Item).filter_by(id=item_id).first()
+    if not hasattr(deleteItem, 'id'):
+        return "this item not exist"
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
