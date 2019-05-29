@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from models import Base, Item, Category, User
 from flask_httpauth import HTTPBasicAuth
 from flask import session as login_session
-import json, random, string
+import json
 from googleapiclient.discovery import build
 import httplib2
 from oauth2client import client
@@ -82,7 +82,7 @@ def itemJSON(category_id, item_id):
 @app.route('/category')
 def catalogFunction():
     category = session.query(Category)
-    items = session.query(Item).filter_by(category_id=Item.category_id).order_by(Item.id.desc()).all()
+    items = session.query(Item).filter_by(category_id=Item.category_id).order_by(Item.id.desc()).limit(8).all()
     if 'username' not in login_session:
         if category.count() == 0:
             flash("You have no categories yet!")
@@ -190,12 +190,11 @@ def newItemFunction(category_id):
     category2 = session.query(Category).filter_by(id=category_id).first()
     if not hasattr(category2, 'id'):
         return "this category not exist"
-    if 'username' not in login_session:
-        return redirect('/login')
+
     if request.method == 'POST':
         newItem = Item(
             name=request.form['name'], description=request.form['description'],
-            category_id=category_id)
+            category_id=request.form['category'])
         session.add(newItem)
         session.commit()
         flash("New menu item created!")
