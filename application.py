@@ -136,14 +136,11 @@ def editCategoryFunction(category_id):
 def deleteCategoryFunction(category_id):
     category = session.query(Category)
     category2 = session.query(Category).filter_by(id=category_id).first()
-    deleteItem = session.query(Item).filter_by(id=category_id).all()
+    deleteItem = session.query(Item).filter_by(category_id=category2.id).delete()
     if not hasattr(category2, 'id'):
         return "this category not exist"
-    if 'username' not in login_session:
-        return redirect('/login')
     if request.method == 'POST':
         session.delete(category2)
-        session.delete(deleteItem)
         session.commit()
         flash("Category and his items was seccessfully deleted!")
         return redirect(url_for('catalogFunction', plantas=category))
