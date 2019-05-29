@@ -1,30 +1,60 @@
-from flask import Flask, request, render_template, jsonify, url_for, redirect, flash, abort, g, make_response
+from flask import Flask, request, render_template, jsonify, url_for, redirect, flash
 import requests
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from models import Base, Item, Category, User
-from flask import session as login_session
 from flask_httpauth import HTTPBasicAuth
-import json
-from oauth2client.client import flow_from_clientsecrets
-from oauth2client.client import FlowExchangeError
+from flask import session as login_session
+import json, random, string
+from googleapiclient.discovery import build
 import httplib2
-
-
-auth = HTTPBasicAuth()
+from oauth2client import client
 
 engine = create_engine('sqlite:///plants.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 app = Flask(__name__)
+auth = HTTPBasicAuth()
 
+CLIENT_ID = json.loads(
+    open('client_secrets.json', 'r').read())['web']['client_id']
+APPLICATION_NAME = "Item-Catalog"
 
 @app.route('/login')
 def showLogin():
-    return render_template('login.html')
+    return render_template('loginteste.html')
 
+@app.route('/gconnect', methods=['POST'])
+def gconnect():
+    # If this request does not have `X-Requested-With` header, this could be a CSRF
+    if not request.headers.get('X-Requested-With'):
+        abort(403)
+
+    # Set path to the Web application client_secret_*.json file you downloaded from the
+    # Google API Console: https://console.developers.google.com/apis/credentials
+    CLIENT_SECRET_FILE = '/client_secrets.json'
+
+    # Exchange auth code for access token, refresh token, and ID token
+    credentials = client.credentials_from_clientsecrets_and_code(
+        CLIENT_SECRET_FILE,
+        ['https://www.googleapis.com/auth/drive.appdata', 'profile', 'email'],
+        auth_code)
+
+    # Call Google API
+    http_auth = credentials.authorize(httplib2.Http())
+    drive_service = discovery.build('drive', 'v3', http=http_auth)
+    appfolder = drive_service.files().get(fileId='appfolder').execute()
+
+    id_token = credentials.id_token
+    # Get profile info from ID token
+    login_session['name'] = credentials.id_token['sub']
+    login_session['email'] = credentials.id_token['email']
+    login_session['picture'] = credentials.id_token['picture']
+
+    # Store the access token in the session for later use.
+    login_session['id_token'] = credentials.id_token
 
 # Add JSON API Endpoint for categories
 # Fix: display items into the correct catalog
@@ -52,14 +82,19 @@ def itemJSON(category_id, item_id):
 @app.route('/category')
 def catalogFunction():
     category = session.query(Category)
+    items = session.query(Item).filter_by(category_id=Item.category_id).order_by(Item.id.desc()).all()
     if 'username' not in login_session:
-        return render_template('publicCatalog.html', plantas=category)
-    else:
-        if category == 0:
+        if category.count() == 0:
             flash("You have no categories yet!")
-            return render_template('catalog.html', plantas=category)
+            return render_template('publicCatalog.html', plantas=category, itemName = items)
         else:
-            return render_template('catalog.html', plantas=category)
+            return render_template('publicCatalog.html', plantas=category, itemName = items)
+    else:
+        if category.count() == 0:
+            flash("You have no categories yet!")
+            return render_template('catalog.html', plantas=category, itemName = items)
+        else:
+            return render_template('catalog.html', plantas=category, itemName = items)
 
 # Create the app.route functions for create a new category
 @app.route('/category/new', methods=['GET', "POST"])
@@ -99,12 +134,14 @@ def editCategoryFunction(category_id):
 def deleteCategoryFunction(category_id):
     category = session.query(Category)
     category2 = session.query(Category).filter_by(id=category_id).one()
+    deleteItem = session.query(Item).filter_by(id=category_id).all()
     if 'username' not in login_session:
         return redirect('/login')
     if request.method == 'POST':
         session.delete(category2)
+        session.delete(deleteItem)
         session.commit()
-        flash("Category seccessfully deleted!")
+        flash("Category and his items was seccessfully deleted!")
         return redirect(url_for('catalogFunction', plantas=category))
     else:
         return render_template('deleteCategory.html', category2=category2)
@@ -117,9 +154,13 @@ def categoryFunction(category_id):
     category2 = session.query(Category).filter_by(id=category_id).one()
     items = session.query(Item).filter_by(category_id=category2.id)
     if 'username' not in login_session:
-        return render_template('publicCategory.html', plantas=category, plantas2=category2, itemName=items)
+        if items.count() == 0:
+            flash("You have no items yet!")
+            return render_template('publicCategory.html', plantas=category, plantas2=category2, itemName=items)
+        else:
+            return render_template('publicCategory.html', plantas=category, plantas2=category2, itemName=items)
     else:
-        if not items:
+        if items.count() == 0:
             flash("You have no items yet!")
             return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
         else:
@@ -130,7 +171,7 @@ def categoryFunction(category_id):
 def itemFunction(category_id, item_id):
     category2 = session.query(Category).filter_by(id=category_id).one()
     items = session.query(Item).filter_by(id=item_id).one()
-    if 'username' not in login_session:
+    if 'name' not in login_session:
         return render_template('publicItem.html', itemName=items, category=category2)
     else:
         return render_template('item.html', itemName=items, category=category2)
