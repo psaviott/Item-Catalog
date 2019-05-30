@@ -24,9 +24,9 @@
         </div>
         <div class="form-group">
           <label>Category</label>
-          <select class="form-control" id="inputCategory" name="category">
+          <select class="form-control" id="inputCategory" name="category" placeholder='{{category.category_id}}'>
             {% for i in category %}
-              <option>{{ i.name }}</option>
+              <option value="{{i.id}}">{{ i.name }}</option>
             {% endfor %}
           </select>
         </div>

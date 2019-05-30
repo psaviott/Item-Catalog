@@ -20,9 +20,9 @@
           <label>Description</label>
           <textarea class="form-control" name='description' value='{{editItem.description}}' placeholder='{{editItem.description}}' rows="3"></textarea>
           <label>Category</label>
-          <select class="form-control" id="inputCategory" name='category' value='{{editItem.category_id}}' placeholder='{{editItem.category_id}}'>
+          <select class="form-control" id="inputCategory" name='category' value='{{editItem.category_name}}'>
             {% for i in category %}
-              <option>{{ i.name }}</option>
+              <option value="{{i.id}}">{{ i.name }}</option>
             {% endfor %}
           </select>
           <input type='submit' value='Edit'>

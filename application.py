@@ -188,7 +188,8 @@ def newItemFunction(category_id):
     category2 = session.query(Category).filter_by(id=category_id).first()
     if not hasattr(category2, 'id'):
         return "this category not exist"
-
+    if 'username' not in login_session:
+        return redirect('/login')
     if request.method == 'POST':
         newItem = Item(
             name=request.form['name'], description=request.form['description'],
@@ -196,7 +197,7 @@ def newItemFunction(category_id):
         session.add(newItem)
         session.commit()
         flash("New menu item created!")
-        return redirect(url_for('categoryFunction', category_id=category_id))
+        return redirect(url_for('categoryFunction', category_id=newItem.category_id))
     else:
         return render_template('newItem.html', category=category, category2=category2)
 
@@ -219,11 +220,11 @@ def editItemFunction(category_id, item_id):
         if request.form['description']:
             editItem.description = request.form['description']
         if request.form['category']:
-            editItem.category_name = request.form['category']
+            editItem.category_id = request.form['category']
         session.add(editItem)
         session.commit()
         flash("Item seccessfully edited!")
-        return redirect(url_for('itemFunction', category_id=category_id, item_id=item_id))
+        return redirect(url_for('itemFunction', category_id=editItem.category_id, item_id=item_id))
     else:
         return render_template('editItem.html', category=category, category2=category2, editItem=editItem)
 
