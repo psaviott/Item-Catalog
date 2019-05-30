@@ -8,7 +8,7 @@ from models import Base, Item, Category, User
 from flask import session as login_session
 import random
 import string
-from flask_httpauth import HTTPBasicAuth
+
 
 # NEW IMPORTS
 from oauth2client.client import flow_from_clientsecrets
@@ -22,25 +22,11 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 app = Flask(__name__)
-auth = HTTPBasicAuth()
+
 
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Item-Catalog"
-
-
-@auth.verify_password
-def verify_password(username_or_token, password):
-    # Try to see if it's a token first
-    user_id = User.verify_auth_token(username_or_token)
-    if user_id:
-        user = session.query(User).filter_by(id=user_id).one()
-    else:
-        user = session.query(User).filter_by(name=name_or_token).first()
-        if not user or not user.verify_password(password):
-            return False
-    g.user = user
-    return True
 
 
 @app.route('/login')
@@ -169,6 +155,27 @@ def getUserID(email):
         return None
 
 
+@app.route('/gdisconnect')
+def gdisconnect():
+    # Only disconnect a connected user.
+    access_token = login_session.get('access_token')
+    if access_token is None:
+        response = make_response(
+            json.dumps('Current user not connected.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[0]
+    if result['status'] == '200':
+        response = make_response(json.dumps('Successfully disconnected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    else:
+        response = make_response(json.dumps('Failed to revoke token for given user.'), 400)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
 # Add JSON API Endpoint for categories
 # Fix: display items into the correct catalog
 @app.route('/category/JSON')
@@ -189,6 +196,22 @@ def categoriesItemsJSON(category_id):
 def itemJSON(category_id, item_id):
     items = session.query(Item).filter_by(id=item_id).one()
     return jsonify(Items=items.serialize)
+
+# Disconnect based on provider
+@app.route('/disconnect')
+def disconnect():
+    if 'provider' in login_session:
+        if login_session['provider'] == 'google':
+            gdisconnect()
+            del login_session['gplus_id']
+            del login_session['access_token']
+        del login_session['username']
+        del login_session['email']
+        del login_session['picture']
+        del login_session['user_id']
+        del login_session['provider']
+        flash("You have successfully been logged out.")
+        return redirect(url_for('catalogFunction'))
 
 # Create the app.route function to list all categories
 @app.route('/')
@@ -289,7 +312,7 @@ def itemFunction(category_id, item_id):
     items = session.query(Item).filter_by(id=item_id).first()
     if not hasattr(items, 'id'):
         return "this item not exist"
-    if 'name' not in login_session:
+    if 'username' not in login_session:
         return render_template('publicItem.html', itemName=items, category=category2)
     else:
         return render_template('item.html', itemName=items, category=category2)

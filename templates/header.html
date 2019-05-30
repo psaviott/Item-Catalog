@@ -5,8 +5,10 @@
     </a>
   </div>
   <div class="col-md-6 text-right">
-    <a href="{{url_for('showLogin')}}">
-      <button type="button"  id="log-in-out-button" class="btn btn-primary">Login</button>
-    </a>
+    {%if 'username' not in session %}
+      <a href="{{url_for('showLogin')}}"><button type="button"  id="log-in-out-button" class="btn btn-primary">Login</button></a>
+    {% else %}
+      <a href="{{url_for('disconnect')}}"><button type="button"  id="log-in-out-button" class="btn btn-primary">Logout</button></a>
+    {% endif %}
   </div>
 </header>
