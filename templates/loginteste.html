@@ -1,57 +1,78 @@
+536237628834-1n8ofvh9epngi2futjqf5o3c63m0n7re.apps.googleusercontent.com
 <html lang="en">
   <head>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-    <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
-    <script>
-    function start() {
-      gapi.load('auth2', function() {
-        auth2 = gapi.auth2.init({
-          client_id: '536237628834-1n8ofvh9epngi2futjqf5o3c63m0n7re.apps.googleusercontent.com',
-          // Scopes to request in addition to 'profile' and 'email'
-          //scope: 'additional_scope'
-        });
-      });
-    }
-  </script>
-
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="536237628834-1n8ofvh9epngi2futjqf5o3c63m0n7re.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
   </head>
   <body>
-    <button id="signinButton">Sign in with Google</button>
+    <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
     <script>
-      $('#signinButton').click(function() {
-        // signInCallback defined in step 6.
-        auth2.grantOfflineAccess().then(signInCallback);
-      });
+      function onSignIn(googleUser) {
+        // Useful data for your client-side scripts:
+        var profile = googleUser.getBasicProfile();
+        console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+        console.log('Name: ' + profile.getName());
+        console.log("Image URL: " + profile.getImageUrl());
+        console.log("Email: " + profile.getEmail());
+
+        // The ID token you need to pass to your backend:
+        var id_token = googleUser.getAuthResponse().id_token;
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'http://localhost:5000/');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function() {
+          console.log('Signed in as: ' + xhr.responseText);
+        };
+        xhr.send('idtoken=' + id_token);
+        /**
+         * The Sign-In client object.
+         */
+        var auth2;
+
+        /**
+         * Initializes the Sign-In client.
+         */
+        var initClient = function() {
+            gapi.load('auth2', function(){
+                /**
+                 * Retrieve the singleton for the GoogleAuth library and set up the
+                 * client.
+                 */
+                auth2 = gapi.auth2.init({
+                    client_id: '536237628834-1n8ofvh9epngi2futjqf5o3c63m0n7re.apps.googleusercontent.com'
+                });
+
+                // Attach the click handler to the sign-in button
+                auth2.attachClickHandler('signin-button', {}, onSuccess, onFailure);
+            });
+        };
+
+        /**
+         * Handle successful sign-ins.
+         */
+        var onSuccess = function(user) {
+            console.log('Signed in as ' + user.getBasicProfile().getName());
+         };
+
+        /**
+         * Handle sign-in failures.
+         */
+        var onFailure = function(error) {
+            console.log(error);
+        };
+
+        }
     </script>
+    <a href="#" onclick="signOut();">Sign out</a>
     <script>
-    function signInCallback(authResult) {
-      if (authResult['code']) {
-
-        // Hide the sign-in button now that the user is authorized, for example:
-        $('#signinButton').attr('style', 'display: none');
-
-        // Send the code to the server
-        $.ajax({
-          type: 'POST',
-          url: 'gconnect',
-          // Always include an `X-Requested-With` header in every AJAX request,
-          // to protect against CSRF attacks.
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-          },
-          contentType: 'application/octet-stream; charset=utf-8',
-          success: function(result) {
-            // Handle or verify the server response.
-          },
-          processData: false,
-          data: authResult['code']
+      function signOut() {
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+          console.log('User signed out.');
         });
-      } else {
-        // There was an error.
       }
-    }
     </script>
-
 
   </body>
 </html>

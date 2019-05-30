@@ -1,15 +1,21 @@
-from flask import Flask, request, render_template, jsonify, url_for, redirect, flash
+from flask import Flask, request, render_template, jsonify, url_for, redirect, flash, json
 import requests
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from models import Base, Item, Category, User
-from flask_httpauth import HTTPBasicAuth
+
 from flask import session as login_session
-import json
-from googleapiclient.discovery import build
+import random
+import string
+from flask_httpauth import HTTPBasicAuth
+
+# NEW IMPORTS
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import FlowExchangeError
 import httplib2
-from oauth2client import client
+from flask import make_response
+import requests
 
 engine = create_engine('sqlite:///plants.db')
 Base.metadata.bind = engine
@@ -22,39 +28,146 @@ CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Item-Catalog"
 
+
+@auth.verify_password
+def verify_password(username_or_token, password):
+    # Try to see if it's a token first
+    user_id = User.verify_auth_token(username_or_token)
+    if user_id:
+        user = session.query(User).filter_by(id=user_id).one()
+    else:
+        user = session.query(User).filter_by(name=name_or_token).first()
+        if not user or not user.verify_password(password):
+            return False
+    g.user = user
+    return True
+
+
 @app.route('/login')
 def showLogin():
-    return render_template('loginteste.html')
+    state = ''.join(random.choice(string.ascii_uppercase +
+                                  string.digits) for x in range(32))
+    login_session['state'] = state
+    return render_template('login.html', STATE=state, CLIENT_ID=CLIENT_ID)
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
-    # If this request does not have `X-Requested-With` header, this could be a CSRF
-    if not request.headers.get('X-Requested-With'):
-        abort(403)
+    # Validate state token
+    if request.args.get('state') != login_session['state']:
+        response = make_response(json.dumps('Invalid state parameter.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    # Obtain authorization code, now compatible with Python3
+    request.get_data()
+    code = request.data.decode('utf-8')
 
-    # Set path to the Web application client_secret_*.json file you downloaded from the
-    # Google API Console: https://console.developers.google.com/apis/credentials
-    CLIENT_SECRET_FILE = '/client_secrets.json'
+    try:
+        # Upgrade the authorization code into a credentials object
+        oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
+        oauth_flow.redirect_uri = 'postmessage'
+        credentials = oauth_flow.step2_exchange(code)
+    except FlowExchangeError:
+        response = make_response(
+            json.dumps('Failed to upgrade the authorization code.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
 
-    # Exchange auth code for access token, refresh token, and ID token
-    credentials = client.credentials_from_clientsecrets_and_code(
-        CLIENT_SECRET_FILE,
-        ['https://www.googleapis.com/auth/drive.appdata', 'profile', 'email'],
-        auth_code)
+    # Check that the access token is valid.
+    access_token = credentials.access_token
+    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
+           % access_token)
+    # Submit request, parse response - Python3 compatible
+    h = httplib2.Http()
+    response = h.request(url, 'GET')[1]
+    str_response = response.decode('utf-8')
+    result = json.loads(str_response)
 
-    # Call Google API
-    http_auth = credentials.authorize(httplib2.Http())
-    drive_service = discovery.build('drive', 'v3', http=http_auth)
-    appfolder = drive_service.files().get(fileId='appfolder').execute()
+    # If there was an error in the access token info, abort.
+    if result.get('error') is not None:
+        response = make_response(json.dumps(result.get('error')), 500)
+        response.headers['Content-Type'] = 'application/json'
+        return response
 
-    id_token = credentials.id_token
-    # Get profile info from ID token
-    login_session['name'] = credentials.id_token['sub']
-    login_session['email'] = credentials.id_token['email']
-    login_session['picture'] = credentials.id_token['picture']
+    # Verify that the access token is used for the intended user.
+    gplus_id = credentials.id_token['sub']
+    if result['user_id'] != gplus_id:
+        response = make_response(
+            json.dumps("Token's user ID doesn't match given user ID."), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Verify that the access token is valid for this app.
+    if result['issued_to'] != CLIENT_ID:
+        response = make_response(
+            json.dumps("Token's client ID does not match app's."), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    stored_access_token = login_session.get('access_token')
+    stored_gplus_id = login_session.get('gplus_id')
+    if stored_access_token is not None and gplus_id == stored_gplus_id:
+        response = make_response(
+            json.dumps('Current user is already connected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
 
     # Store the access token in the session for later use.
-    login_session['id_token'] = credentials.id_token
+    login_session['access_token'] = access_token
+    login_session['gplus_id'] = gplus_id
+
+    # Get user info
+    userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
+    params = {'access_token': access_token, 'alt': 'json'}
+    answer = requests.get(userinfo_url, params=params)
+
+    data = answer.json()
+
+    login_session['username'] = data.get('name', '')
+    login_session['picture'] = data['picture']
+    login_session['email'] = data['email']
+    login_session['provider'] = 'google'
+
+    # see if user exists, if it doesn't make a new one
+    user_id = getUserID(login_session['email'])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id
+
+    output = ''
+    output += '<h1>Welcome, '
+    output += login_session['username']
+    output += '!</h1>'
+    output += '<img src="'
+    output += login_session['picture']
+    output += ' " style = "width: 300px; height: '
+    output += '300px;border-radius: 150px;-webkit-border-radius: '
+    output += '150px;-moz-border-radius: 150px;"> '
+    flash("you are now logged in as %s" % login_session['username'])
+    return output
+
+
+# User Helper Functions
+def createUser(login_session):
+    newUser = User(name=login_session['username'], email=login_session[
+                   'email'], picture=login_session['picture'])
+    session.add(newUser)
+    session.commit()
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one_or_none()
+    return user
+
+
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user.id
+    except BaseException:
+        return None
+
 
 # Add JSON API Endpoint for categories
 # Fix: display items into the correct catalog
@@ -78,6 +191,7 @@ def itemJSON(category_id, item_id):
     return jsonify(Items=items.serialize)
 
 # Create the app.route function to list all categories
+@app.route('/')
 @app.route('/category')
 def catalogFunction():
     category = session.query(Category)
@@ -99,7 +213,7 @@ def catalogFunction():
 @app.route('/category/new', methods=['GET', "POST"])
 def newCategoryFunction():
     category = session.query(Category)
-    if 'username' not in login_session:
+    if 'gplusid' not in session:
         return redirect('/login')
     if request.method == 'POST':
         newCategory = Category(
@@ -110,7 +224,6 @@ def newCategoryFunction():
         return redirect(url_for('catalogFunction', category=category))
     else:
         return render_template('newCategory.html', category=category)
-        # return jsonify(Categories=[i.serialize for i in category])
 
 # Create the app.route function for edit a category
 @app.route('/category/<int:category_id>/edit', methods=['GET', "POST"])
