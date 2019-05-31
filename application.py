@@ -1,16 +1,13 @@
-from flask import Flask, request, render_template, jsonify, url_for, redirect, flash, json
+from flask import Flask, request, render_template
+from flask import jsonify, url_for, redirect, flash, json
 import requests
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from models import Base, Item, Category, User
-
 from flask import session as login_session
 import random
 import string
-
-
-# NEW IMPORTS
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
@@ -35,6 +32,7 @@ def showLogin():
                                   string.digits) for x in range(32))
     login_session['state'] = state
     return render_template('login.html', STATE=state, CLIENT_ID=CLIENT_ID)
+
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
@@ -172,7 +170,8 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.'), 400)
+        response = make_response(
+            json.dumps('Failed to revoke token for given user.'), 400)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -182,7 +181,8 @@ def gdisconnect():
 def categoriesJSON():
     category = session.query(Category)
     items = session.query(Item).filter_by(category_id=Item.category_id).all()
-    return jsonify(Categories=[i.serialize for i in category], Items=[i.serialize for i in items])
+    return jsonify(Categories=[
+        i.serialize for i in category], Items=[i.serialize for i in items])
 
 # Add JSON API Endpoint for a category items
 @app.route('/category/<int:category_id>/items/JSON')
@@ -218,19 +218,24 @@ def disconnect():
 @app.route('/category')
 def catalogFunction():
     category = session.query(Category)
-    items = session.query(Item).filter_by(category_id=Item.category_id).order_by(Item.id.desc()).limit(8).all()
+    items = session.query(Item).filter_by(
+        category_id=Item.category_id).order_by(Item.id.desc()).limit(8).all()
     if 'username' not in login_session:
         if category.count() == 0:
             flash("You have no categories yet!")
-            return render_template('publicCatalog.html', plantas=category, itemName = items)
+            return render_template(
+                'publicCatalog.html', plantas=category, itemName=items)
         else:
-            return render_template('publicCatalog.html', plantas=category, itemName = items)
+            return render_template(
+                'publicCatalog.html', plantas=category, itemName=items)
     else:
         if category.count() == 0:
             flash("You have no categories yet!")
-            return render_template('catalog.html', plantas=category, itemName = items)
+            return render_template(
+                'catalog.html', plantas=category, itemName=items)
         else:
-            return render_template('catalog.html', plantas=category, itemName = items)
+            return render_template(
+                'catalog.html', plantas=category, itemName=items)
 
 # Create the app.route functions for create a new category
 @app.route('/category/new', methods=['GET', "POST"])
@@ -271,7 +276,8 @@ def editCategoryFunction(category_id):
 def deleteCategoryFunction(category_id):
     category = session.query(Category)
     category2 = session.query(Category).filter_by(id=category_id).first()
-    deleteItem = session.query(Item).filter_by(category_id=category2.id).delete()
+    deleteItem = session.query(Item).filter_by(
+                                        category_id=category2.id).delete()
     if not hasattr(category2, 'id'):
         return "this category not exist"
     if request.method == 'POST':
@@ -293,15 +299,23 @@ def categoryFunction(category_id):
     if 'username' not in login_session:
         if items.count() == 0:
             flash("You have no items yet!")
-            return render_template('publicCategory.html', plantas=category, plantas2=category2, itemName=items)
+            return render_template(
+                'publicCategory.html',
+                plantas=category, plantas2=category2, itemName=items)
         else:
-            return render_template('publicCategory.html', plantas=category, plantas2=category2, itemName=items)
+            return render_template(
+                'publicCategory.html',
+                plantas=category, plantas2=category2, itemName=items)
     else:
         if items.count() == 0:
             flash("You have no items yet!")
-            return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
+            return render_template(
+                'category.html',
+                plantas=category, plantas2=category2, itemName=items)
         else:
-            return render_template('category.html', plantas=category, plantas2=category2, itemName=items)
+            return render_template(
+                'category.html',
+                plantas=category, plantas2=category2, itemName=items)
 
 # Create the app.route function to display item
 @app.route('/category/<int:category_id>/items/<int:item_id>')
@@ -313,7 +327,8 @@ def itemFunction(category_id, item_id):
     if not hasattr(items, 'id'):
         return "this item not exist"
     if 'username' not in login_session:
-        return render_template('publicItem.html', itemName=items, category=category2)
+        return render_template(
+            'publicItem.html', itemName=items, category=category2)
     else:
         return render_template('item.html', itemName=items, category=category2)
 
@@ -333,9 +348,11 @@ def newItemFunction(category_id):
         session.add(newItem)
         session.commit()
         flash("New menu item created!")
-        return redirect(url_for('categoryFunction', category_id=newItem.category_id))
+        return redirect(url_for(
+            'categoryFunction', category_id=newItem.category_id))
     else:
-        return render_template('newItem.html', category=category, category2=category2)
+        return render_template(
+            'newItem.html', category=category, category2=category2)
 
 
 # Create the app.route function to edit item
@@ -360,9 +377,12 @@ def editItemFunction(category_id, item_id):
         session.add(editItem)
         session.commit()
         flash("Item seccessfully edited!")
-        return redirect(url_for('itemFunction', category_id=editItem.category_id, item_id=item_id))
+        return redirect(url_for(
+            'itemFunction', category_id=editItem.category_id, item_id=item_id))
     else:
-        return render_template('editItem.html', category=category, category2=category2, editItem=editItem)
+        return render_template(
+            'editItem.html',
+            category=category, category2=category2, editItem=editItem)
 
 # Create the app.route function to delete a item
 @app.route('/category/<int:category_id>/items/<int:item_id>/delete', methods=['GET', "POST"])
@@ -381,7 +401,8 @@ def deleteItemFunction(category_id, item_id):
         flash("Menu item seccessfully deleted!")
         return redirect(url_for('categoryFunction', category_id=category2.id))
     else:
-        return render_template('deleteItem.html', category_id=category_id, item=deleteItem)
+        return render_template(
+            'deleteItem.html', category_id=category_id, item=deleteItem)
 
 
 if __name__ == '__main__':
