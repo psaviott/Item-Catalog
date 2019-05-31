@@ -14,18 +14,19 @@ import httplib2
 from flask import make_response
 import requests
 
+app = Flask(__name__)
+
+# Connect and create db session
 engine = create_engine('sqlite:///plants.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
-app = Flask(__name__)
-
 
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Item-Catalog"
 
-
+# Create anti-forgery state token
 @app.route('/login')
 def showLogin():
     state = ''.join(random.choice(string.ascii_uppercase +
@@ -33,7 +34,7 @@ def showLogin():
     login_session['state'] = state
     return render_template('login.html', STATE=state, CLIENT_ID=CLIENT_ID)
 
-
+# Create Login with Google account
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
@@ -41,7 +42,7 @@ def gconnect():
         response = make_response(json.dumps('Invalid state parameter.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    # Obtain authorization code, now compatible with Python3
+    # Obtain authorization code
     request.get_data()
     code = request.data.decode('utf-8')
 
@@ -60,7 +61,6 @@ def gconnect():
     access_token = credentials.access_token
     url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
            % access_token)
-    # Submit request, parse response - Python3 compatible
     h = httplib2.Http()
     response = h.request(url, 'GET')[1]
     str_response = response.decode('utf-8')
@@ -152,7 +152,7 @@ def getUserID(email):
     except BaseException:
         return None
 
-
+# Create Logout for Google account
 @app.route('/gdisconnect')
 def gdisconnect():
     # Only disconnect a connected user.
@@ -197,30 +197,17 @@ def itemJSON(category_id, item_id):
     items = session.query(Item).filter_by(id=item_id).one()
     return jsonify(Items=items.serialize)
 
-# Disconnect based on provider
-@app.route('/disconnect')
-def disconnect():
-    if 'provider' in login_session:
-        if login_session['provider'] == 'google':
-            gdisconnect()
-            del login_session['gplus_id']
-            del login_session['access_token']
-        del login_session['username']
-        del login_session['email']
-        del login_session['picture']
-        del login_session['user_id']
-        del login_session['provider']
-        flash("You have successfully been logged out.")
-        return redirect(url_for('catalogFunction'))
 
-# Create the app.route function to list all categories
+# Create route to list all categories
 @app.route('/')
 @app.route('/category')
 def catalogFunction():
     category = session.query(Category)
     items = session.query(Item).filter_by(
         category_id=Item.category_id).order_by(Item.id.desc()).limit(8).all()
+    # Check if user is logged. If not, display the public page
     if 'username' not in login_session:
+        # Check if have categories to display. If not show a message
         if category.count() == 0:
             flash("You have no categories yet!")
             return render_template(
@@ -228,7 +215,9 @@ def catalogFunction():
         else:
             return render_template(
                 'publicCatalog.html', plantas=category, itemName=items)
+    # If logged user, display the logged users page
     else:
+        # Check if have categories to display. If not show a message
         if category.count() == 0:
             flash("You have no categories yet!")
             return render_template(
@@ -241,8 +230,10 @@ def catalogFunction():
 @app.route('/category/new', methods=['GET', "POST"])
 def newCategoryFunction():
     category = session.query(Category)
-    if 'gplusid' not in session:
+    # Check if user is logged. If not, redirect to login page
+    if 'username' not in login_session:
         return redirect('/login')
+    # Get the new category name from newCategory page
     if request.method == 'POST':
         newCategory = Category(
             name=request.form['name'], user_id=login_session['user_id'])
@@ -253,14 +244,17 @@ def newCategoryFunction():
     else:
         return render_template('newCategory.html', category=category)
 
-# Create the app.route function for edit a category
+# Create route for edit a category
 @app.route('/category/<int:category_id>/edit', methods=['GET', "POST"])
 def editCategoryFunction(category_id):
     category2 = session.query(Category).filter_by(id=category_id).first()
+    # Check if the inserted category id exist in db
     if not hasattr(category2, 'id'):
         return "this category not exist"
+    # Check if user is logged. If not, redirect to login page
     if 'username' not in login_session:
         return redirect('/login')
+    # Receive edited category name from the editCategory page
     if request.method == 'POST':
         if request.form['name']:
             category2.name = request.form['name']
@@ -271,15 +265,20 @@ def editCategoryFunction(category_id):
     else:
         return render_template('editCategory.html', category2=category2)
 
-# Create the app.route function for delete a category
+# Create route for delete a category
 @app.route('/category/<int:category_id>/delete', methods=['GET', "POST"])
 def deleteCategoryFunction(category_id):
     category = session.query(Category)
     category2 = session.query(Category).filter_by(id=category_id).first()
     deleteItem = session.query(Item).filter_by(
                                         category_id=category2.id).delete()
+    # Check if the inserted category id exist in db
     if not hasattr(category2, 'id'):
         return "this category not exist"
+    # Check if user is logged. If not, redirect to login page
+    if 'username' not in login_session:
+        return redirect('/login')
+    # Receive delete category from the editCategory page
     if request.method == 'POST':
         session.delete(category2)
         session.commit()
@@ -288,15 +287,18 @@ def deleteCategoryFunction(category_id):
     else:
         return render_template('deleteCategory.html', category2=category2)
 
-# Create the app.route function to display the items for the selected category
+# Create route to display the items for the selected category
 @app.route('/category/<int:category_id>/items')
 def categoryFunction(category_id):
     category = session.query(Category)
     category2 = session.query(Category).filter_by(id=category_id).first()
+    # Check if the inserted category id exist in db
     if not hasattr(category2, 'id'):
         return "this category not exist"
     items = session.query(Item).filter_by(category_id=category2.id)
+    # Check if user is logged. If not, display the public page
     if 'username' not in login_session:
+        # Check if have items in db
         if items.count() == 0:
             flash("You have no items yet!")
             return render_template(
@@ -306,7 +308,9 @@ def categoryFunction(category_id):
             return render_template(
                 'publicCategory.html',
                 plantas=category, plantas2=category2, itemName=items)
+    # If logged user, display the logged users page
     else:
+        # Check if have items in db
         if items.count() == 0:
             flash("You have no items yet!")
             return render_template(
@@ -321,13 +325,17 @@ def categoryFunction(category_id):
 @app.route('/category/<int:category_id>/items/<int:item_id>')
 def itemFunction(category_id, item_id):
     category2 = session.query(Category).filter_by(id=category_id).first()
+    # Check if the inserted category id exist in db
     if not hasattr(category2, 'id'):
         return "this category not exist"
     items = session.query(Item).filter_by(id=item_id).first()
+    # Check if the inserted items id exist in db
     if not hasattr(items, 'id'):
         return "this item not exist"
+    # check if iserted item_id has the same iserted category_id as atribute
     if items.category_id != category_id:
         return "This item not exist in this category"
+    # Check if user is logged. If not, redirect to the login page
     if 'username' not in login_session:
         return render_template(
             'publicItem.html', itemName=items, category=category2)
@@ -339,10 +347,13 @@ def itemFunction(category_id, item_id):
 def newItemFunction(category_id):
     category = session.query(Category)
     category2 = session.query(Category).filter_by(id=category_id).first()
+    # Check if the inserted category id exist in db
     if not hasattr(category2, 'id'):
         return "this category not exist"
+    # Check if user is logged. If not, redirect to the login page
     if 'username' not in login_session:
         return redirect('/login')
+    # Receive new item infos from the newItem page
     if request.method == 'POST':
         newItem = Item(
             name=request.form['name'], description=request.form['description'],
@@ -362,18 +373,24 @@ def newItemFunction(category_id):
 def editItemFunction(category_id, item_id):
     category = session.query(Category)
     category2 = session.query(Category).filter_by(id=category_id).first()
+    # Check if the inserted category id exist in db
     if not hasattr(category2, 'id'):
         return "this category not exist"
     editItem = session.query(Item).filter_by(id=item_id).first()
+    # Check if the inserted items id exist in db
     if not hasattr(editItem, 'id'):
         return "this item not exist"
+    # check if iserted item_id has the same iserted category_id as atribute
     if editItem.category_id != category_id:
         return "This item not exist in this category"
+    # Check if user is logged. If not, redirect to the login page
     if 'username' not in login_session:
         return redirect('/login')
+    # Check if the logged user is the creator of the item. If not, display a authorization error message
     if login_session['user_id'] != editItem.user_id:
         flash("You not authorizated to edit this item.")
         return redirect(url_for('catalogFunction'))
+    # Receive the edited item infos from the editItem page
     if request.method == 'POST':
         if request.form['name']:
             editItem.name = request.form['name']
@@ -395,18 +412,24 @@ def editItemFunction(category_id, item_id):
 @app.route('/category/<int:category_id>/items/<int:item_id>/delete', methods=['GET', "POST"])
 def deleteItemFunction(category_id, item_id):
     category2 = session.query(Category).filter_by(id=category_id).first()
+    # Check if the inserted category id exist in db
     if not hasattr(category2, 'id'):
         return "this category not exist"
     deleteItem = session.query(Item).filter_by(id=item_id).first()
+    # Check if the inserted items id exist in db
     if not hasattr(deleteItem, 'id'):
         return "this item not exist"
+    # check if iserted item_id has the same iserted category_id as atribute
     if deleteItem.category_id != category_id:
         return "This item not exist in this category"
+    # Check if user is logged. If not, redirect to the login page
     if 'username' not in login_session:
         return redirect('/login')
+    # Check if the logged user is the creator of the item. If not, display a authorization error message
     if login_session['user_id'] != deleteItem.user_id:
         flash("You not authorizated to delete this item.")
         return redirect(url_for('catalogFunction'))
+    # Receive the delete to delete from the deleteItem page
     if request.method == 'POST':
         session.delete(deleteItem)
         session.commit()
@@ -415,6 +438,23 @@ def deleteItemFunction(category_id, item_id):
     else:
         return render_template(
             'deleteItem.html', category_id=category_id, item=deleteItem)
+
+
+# Disconnect based on provider
+@app.route('/disconnect')
+def disconnect():
+    if 'provider' in login_session:
+        if login_session['provider'] == 'google':
+            gdisconnect()
+            del login_session['gplus_id']
+            del login_session['access_token']
+        del login_session['username']
+        del login_session['email']
+        del login_session['picture']
+        del login_session['user_id']
+        del login_session['provider']
+        flash("You have successfully been logged out.")
+        return redirect(url_for('catalogFunction'))
 
 
 if __name__ == '__main__':
