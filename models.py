@@ -2,12 +2,12 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
-from passlib.apps import custom_app_context as pwd_context
 import random, string
-from itsdangerous import(TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
+from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 
 Base = declarative_base()
 secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+
 
 class User(Base):
     __tablename__ = 'user'
@@ -16,20 +16,6 @@ class User(Base):
     name = Column(String(32), index=True)
     picture = Column(String)
     email = Column(String)
-
-    @staticmethod
-    def verify_auth_token(token):
-        s = Serializer(secret_key)
-        try:
-            data = s.loads(token)
-        except SignatureExpired:
-            # Valid Token, but expired
-            return None
-        except BadSignature:
-            # Invalid Token
-            return None
-        user_id = data['id']
-        return user_id
 
 
 class Category(Base):
