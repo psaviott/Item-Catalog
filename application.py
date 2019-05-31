@@ -326,6 +326,8 @@ def itemFunction(category_id, item_id):
     items = session.query(Item).filter_by(id=item_id).first()
     if not hasattr(items, 'id'):
         return "this item not exist"
+    if items.category_id != category_id:
+        return "This item not exist in this category"
     if 'username' not in login_session:
         return render_template(
             'publicItem.html', itemName=items, category=category2)
@@ -365,6 +367,8 @@ def editItemFunction(category_id, item_id):
     editItem = session.query(Item).filter_by(id=item_id).first()
     if not hasattr(editItem, 'id'):
         return "this item not exist"
+    if editItem.category_id != category_id:
+        return "This item not exist in this category"
     if 'username' not in login_session:
         return redirect('/login')
     if login_session['user_id'] != editItem.user_id:
@@ -396,6 +400,8 @@ def deleteItemFunction(category_id, item_id):
     deleteItem = session.query(Item).filter_by(id=item_id).first()
     if not hasattr(deleteItem, 'id'):
         return "this item not exist"
+    if deleteItem.category_id != category_id:
+        return "This item not exist in this category"
     if 'username' not in login_session:
         return redirect('/login')
     if login_session['user_id'] != deleteItem.user_id:
