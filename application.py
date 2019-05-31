@@ -245,7 +245,7 @@ def newCategoryFunction():
         return redirect('/login')
     if request.method == 'POST':
         newCategory = Category(
-            name=request.form['name'])
+            name=request.form['name'], user_id=login_session['user_id'])
         session.add(newCategory)
         session.commit()
         flash("New category created!")
@@ -344,7 +344,7 @@ def newItemFunction(category_id):
     if request.method == 'POST':
         newItem = Item(
             name=request.form['name'], description=request.form['description'],
-            category_id=request.form['category'])
+            category_id=request.form['category'], user_id=login_session['user_id'])
         session.add(newItem)
         session.commit()
         flash("New menu item created!")
@@ -367,6 +367,9 @@ def editItemFunction(category_id, item_id):
         return "this item not exist"
     if 'username' not in login_session:
         return redirect('/login')
+    if login_session['user_id'] != editItem.user_id:
+        flash("You not authorizated to edit this item.")
+        return redirect(url_for('catalogFunction'))
     if request.method == 'POST':
         if request.form['name']:
             editItem.name = request.form['name']
@@ -395,6 +398,9 @@ def deleteItemFunction(category_id, item_id):
         return "this item not exist"
     if 'username' not in login_session:
         return redirect('/login')
+    if login_session['user_id'] != deleteItem.user_id:
+        flash("You not authorizated to delete this item.")
+        return redirect(url_for('catalogFunction'))
     if request.method == 'POST':
         session.delete(deleteItem)
         session.commit()
