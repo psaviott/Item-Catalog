@@ -8,6 +8,16 @@
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>new item
           </button>
         </a>
+        <a href='{{ url_for('editCategoryFunction', category_id=plantas2.id)}}'>
+          <button id="new-item-button" class="btn btn-default link-color">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>edit category
+          </button>
+        </a>
+        <a href='{{ url_for('deleteCategoryFunction', category_id=plantas2.id)}}'>
+          <button id="new-item-button" class="btn btn-default link-color">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>delete category
+          </button>
+        </a>
         <!--MESSAGE FLASHING EXAMPLE -->
         {% with messages = get_flashed_messages() %}
         {% if messages %}
