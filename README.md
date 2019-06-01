@@ -38,7 +38,9 @@ This project use a Python3 web server. You can run this in a virtual machine. If
 
 Access the main page of the application use the link http://localhost:5000/.
 
-![Image of Yaktocat](https://octodex.github.com/images/yaktocat.png)
+<img src="img/image1.jpeg" width="250">
+<img src="img/image1.jpeg" width="250">
+Format: Print of the public homepage</img
 
 ## Built With
 
