@@ -41,40 +41,41 @@ This project use a Python3 web server. You can run this in a virtual machine. If
 
 ## Running the tests
 
+The endpoints can be acessible for all clients, but some pages is only available to logged users
 
 ### List of HTML Endpoints:
 
 > * List all categories: **/category**
->   * http://localhost:5000/category
+>   * example: http://localhost:5000/category
 > * Create a new category: **/category/news**
->   * http://localhost:5000/category/new
+>   * example: http://localhost:5000/category/new
 > * Edit a category: **/category/<int:category_id>/edit**
->   * http://localhost:5000/category/1/edit
+>   * example: http://localhost:5000/category/1/edit
 > * Delete a category: **/category/<int:category_id>/delete**
->   * http://localhost:5000/category/1/delete
+>   * example: http://localhost:5000/category/1/delete
 > * List all items for the category:
 > **/category/<int:category_id>/items**
->   * http://localhost:5000/category/1/items
+>   * example: http://localhost:5000/category/1/items
 > * Display an item:
 > **/category/<int:category_id>/items/<int:item_id>**
->   * http://localhost:5000/category/1/items/1
+>   * example: http://localhost:5000/category/1/items/1
 > * Add an item: **/category/<int:category_id>/items/new**
->   * http://localhost:5000/category/1/items/news
+>   * example: http://localhost:5000/category/1/items/news
 > * Edit an item:
 > **/category/<int:category_id>/items/<int:item_id>/edit**
->   * http://localhost:5000/category/1/items/1/edit
+>   * example: http://localhost:5000/category/1/items/1/edit
 > * Delete an item:
 > **/category/<int:category_id>/items/<int:item_id>/delete**
->   * http://localhost:5000/category/1/items/1/delete
+>   * example: http://localhost:5000/category/1/items/1/delete
 
 ### List of JSON Endpoint
 
 > * List categories with respective items: **/category/JSON**
->  * http://localhost:5000/category/JSON
+>  * example: http://localhost:5000/category/JSON
 > * List all items for the category: **/category/<int:category_id>/items/JSON**
->  * http://localhost:5000/category/1/JSON
+>  * example: http://localhost:5000/category/1/JSON
 > * Display item infos: **/category/<int:category_id>/items/<int:item_id>/JSON**
->  * http://localhost:5000/category/1/items/1/JSON
+>  * example: http://localhost:5000/category/1/items/1/JSON
 
 ## Built With
 
