@@ -41,9 +41,10 @@ This project use a Python3 web server. You can run this in a virtual machine. If
 
 ## Running the tests
 
+
 ### List of HTML Endpoints:
 
-* List all categories: **/category**
+> * List all categories: **/category**
   * http://localhost:5000/category
 * Create a new category: **/category/news**
   * http://localhost:5000/category/new
@@ -64,7 +65,7 @@ This project use a Python3 web server. You can run this in a virtual machine. If
 
 ### List of JSON Endpoint
 
-* List categories with respective items: **/category/JSON**
+> * List categories with respective items: **/category/JSON**
   * http://localhost:5000/category/JSON
 * List all items for the category: **/category/<int:category_id>/items/JSON**
   * http://localhost:5000/category/1/JSON
