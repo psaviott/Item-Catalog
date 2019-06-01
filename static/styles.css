@@ -1,10 +1,14 @@
+a:hover, a:visited, a:link, a:active  {
+    text-decoration: none;
+}
+
 #top-header {
-  background-color: yellow;
+  height: 7em;
 }
 
 #log-in-out-button {
   float: right;
-  margin-top: 1.5%;
+  margin: 5% 2.5% 0 0;
 }
 
 #new-item-button {
@@ -16,7 +20,7 @@
 }
 
 #item-description {
-  margin-top: 4%;
+  margin: 4% 0 5% 0;
 }
 
 .margin-top-sections {
@@ -25,4 +29,24 @@
 
 .link-color {
   color: red;
+}
+
+.appName {
+  font-family: 'Amatic SC', cursive;
+  font-size: 500%;
+  color: #04B404;
+  margin:0 0 0 2.5%;
+}
+
+.main-body {
+  background-color: #04B404;
+}
+
+.main-footer  {
+  height: 3em;
+}
+
+.name-footer {
+    text-align: center;
+    margin: 0.75% 0 0 0;
 }
