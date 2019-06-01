@@ -70,11 +70,11 @@ This project use a Python3 web server. You can run this in a virtual machine. If
 ### List of JSON Endpoint
 
 > * List categories with respective items: **/category/JSON**
-  * http://localhost:5000/category/JSON
-* List all items for the category: **/category/<int:category_id>/items/JSON**
-  * http://localhost:5000/category/1/JSON
-* Display item infos: **/category/<int:category_id>/items/<int:item_id>/JSON**
-  * http://localhost:5000/category/1/items/1/JSON
+>  * http://localhost:5000/category/JSON
+> * List all items for the category: **/category/<int:category_id>/items/JSON**
+>  * http://localhost:5000/category/1/JSON
+> * Display item infos: **/category/<int:category_id>/items/<int:item_id>/JSON**
+>  * http://localhost:5000/category/1/items/1/JSON
 
 ## Built With
 
