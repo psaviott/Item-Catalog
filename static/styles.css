@@ -102,6 +102,8 @@ a:hover, a:visited, a:link, a:active  {
 .item-desc {
   color: white;
   text-align: center;
+  font-family: 'Raleway', sans-serif;
+  color: #61210B;
 }
 
 .item-desg {
