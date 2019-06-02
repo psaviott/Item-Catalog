@@ -3,7 +3,7 @@
 Modern web applications perform a variety of functions and provide features and utilities to their usersbcreating, reading, updating and deleting data. In this project, combine knowledge about front-end development to make a good resposive page and back-end development to create a persistent data storage and user authentication&authorization to create a web application that provides a compelling service to your users.
 
 This application provides a list of items within a variety of categories as well as provide a user registration and authentication system.
-Registered users will have the ability to create, edit and delete their own items and admin users can be create, edit and delete all items and categories
+Registered users will have the ability to create, edit and delete their own items or categories.
 
 ## Getting Started
 This project use a Python3 web server. You can run this in a virtual machine. If you need help to install and setup a virtual machine with VirtualBox and Vagrant, check the reference link bellow on Resources.
