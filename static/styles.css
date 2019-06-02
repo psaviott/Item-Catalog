@@ -89,3 +89,31 @@ a:hover, a:visited, a:link, a:active  {
   color: red;
   margin: 2% 0 0 3.5%;
 }
+
+.item-title {
+  text-align: center;
+  margin-bottom: 1.5%;
+  font-family: 'Raleway', sans-serif;
+  font-size: 255%;
+  color: #61210B;
+  font-weight: bold;
+}
+
+.item-desc {
+  color: white;
+  text-align: center;
+}
+
+.item-desg {
+  border-width: medium;
+  border-color: white;
+  border-style: double;
+  border-radius: 25%;
+  margin: 2% 0 5% 10%;
+  width: 80%;
+}
+
+.item-button {
+  text-align: center;
+  margin-top: 3.5%;
+}
