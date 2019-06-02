@@ -12,7 +12,8 @@ a:hover, a:visited, a:link, a:active  {
 }
 
 #new-item-button {
-  float: right;
+  margin: 2% 3.5% 0 0;
+  text-align: right;
 }
 
 .list-group-item {
@@ -29,10 +30,6 @@ a:hover, a:visited, a:link, a:active  {
 
 .margin-top-sections {
   margin-top: 3.5%;
-}
-
-.link-color {
-  color: red;
 }
 
 .appName {
@@ -86,4 +83,9 @@ a:hover, a:visited, a:link, a:active  {
 .tree-list .fa-pagelines {
   margin: 40% 0 0 0;
   font-size: 300%;
+}
+
+.flash {
+  color: red;
+  margin: 2% 0 0 3.5%;
 }

@@ -1,17 +1,15 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
-    <div class="row">
-      <div class="col=md=12">
+    <div class="row main-body">
         <!--MESSAGE FLASHING EXAMPLE -->
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         {% for message in messages %}
-        <p><strong>{{message}}</strong></p>
+        <p class="col-md-12 flash"><strong>{{message}}</strong></p>
         {% endfor %}
         {% endif %}
         {% endwith %}
-      </div>
     </div>
     <section class="row main-body">
       <div id="item-description" class="col-md-4">
