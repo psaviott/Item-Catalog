@@ -254,6 +254,9 @@ def editCategoryFunction(category_id):
     # Check if user is logged. If not, redirect to login page
     if 'username' not in login_session:
         return redirect('/login')
+    if login_session['user_id'] != category2.user_id:
+        flash("You not authorizated to edit this category.")
+        return redirect(url_for('catalogFunction'))
     # Receive edited category name from the editCategory page
     if request.method == 'POST':
         if request.form['name']:
@@ -278,6 +281,11 @@ def deleteCategoryFunction(category_id):
     # Check if user is logged. If not, redirect to login page
     if 'username' not in login_session:
         return redirect('/login')
+    # check if the logged user is the owner of the category
+    if login_session['user_id'] != category2.user_id:
+        flash("You not authorizated to edit this category.")
+        return redirect(url_for('catalogFunction'))
+    # Receive edited category name from the editCateg
     # Receive delete category from the editCategory page
     if request.method == 'POST':
         session.delete(category2)

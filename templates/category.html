@@ -16,9 +16,9 @@
       </div>
       <div class="col-md-1 cat-buttons">
         <div id="new-item-button">
-          <a href='{{ url_for('newCategoryFunction', category_id=plantas2.id)}}'>
+          <a href='{{ url_for('newItemFunction', category_id=plantas2.id)}}'>
             <button id="new-item-button" class="btn btn-primary">
-              <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>New Category
+              <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Novo Item
             </button>
           </a>
         </div>
@@ -27,7 +27,7 @@
         <div id="new-item-button">
           <a href='{{ url_for('editCategoryFunction', category_id=plantas2.id)}}'>
             <button id="new-item-button" class="btn btn-primary">
-              <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Edit Category
+              <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Editar Categoria
             </button>
           </a>
         </div>
@@ -36,7 +36,7 @@
         <div id="new-item-button">
           <a href='{{ url_for('deleteCategoryFunction', category_id=plantas2.id)}}'>
             <button id="new-item-button" class="btn btn-danger">
-              <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Delete Category
+              <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Deletar Categoria
             </button>
           </a>
         </div>
