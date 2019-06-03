@@ -24,9 +24,9 @@
           <form class="col-md-12 newitem" action="{{url_for('editItemFunction', category_id=editItem.category_id, item_id=editItem.id)}}" method='POST'>
             <div class="form-group">
               <label>Nome do Item</label>
-              <input class="form-control" type='text' size='30' name='name' value='{{editItem.name}}' placeholder='{{editItem.name}}'>
+              <input class="form-control" type='text' size='30' name='name' value='{{editItem.name}}' placeholder='{{editItem.name}}' required>
               <label>Descrição</label>
-              <textarea class="form-control" name='description' value='{{editItem.description}}' placeholder='{{editItem.description}}' rows="3"></textarea>
+              <textarea class="form-control" name='description' value='{{editItem.description}}' placeholder='{{editItem.description}}' rows="3" required></textarea>
               <label>Categoria</label>
               <select class="form-control" id="inputCategory" name='category' value='{{editItem.category_name}}'>
                 {% for i in category %}

@@ -23,15 +23,15 @@
         <form class="col-md-12 newitem" action="{{url_for('newItemFunction', category_id=category2.id )}}" method='POST'>
           <div class="form-group">
             <label>Nome do Item</label>
-            <input type="text" class="form-control" id="inputTitle" name='name'>
+            <input type="text" class="form-control" id="inputTitle" name='name' required>
           </div>
           <div class="form-group">
             <label>Descrição</label>
-            <textarea class="form-control" id="inputDescription" rows="3" name='description'></textarea>
+            <textarea class="form-control" id="inputDescription" rows="3" name='description' required></textarea>
           </div>
           <div class="form-group">
             <label>Categoria</label>
-            <select class="form-control" id="inputCategory" name="category" placeholder='{{category.category_id}}'>
+            <select class="form-control" id="inputCategory" name="category" placeholder='{{category.category_id}}' required>
               {% for i in category %}
                 <option value="{{i.id}}">{{ i.name }}</option>
               {% endfor %}

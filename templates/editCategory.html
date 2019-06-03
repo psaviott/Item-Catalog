@@ -24,7 +24,7 @@
           <form action="{{url_for('editCategoryFunction', category_id=category2.id)}}" method='POST'>
             <div class="form-group">
               <label>Nome:</label>
-              <input type='text' size='30' name='name' placeholder='{{category2.name}}'>
+              <input type='text' size='30' name='name' placeholder='{{category2.name}}' required>
               <input type='submit' value='Edit'>
             </div>
           </form>
