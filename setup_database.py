@@ -89,18 +89,18 @@ session.add(category4)
 session.commit()
 
 Item7 = Item(name="Bromelia:",
-             description="""É uma flor decorativa que deve ser exposta ao sol de
-             forma indireta. É preciso regá-la duas vezes por semana e evitar o
-             acúmulo de água na planta.""",
+             description="""É uma flor decorativa que deve ser exposta ao sol
+             de forma indireta. É preciso regá-la duas vezes por semana e
+             evitar o acúmulo de água na planta.""",
              category=category4)
 
 session.add(Item7)
 session.commit()
 
 Item8 = Item(name="Violeta",
-             description="""A violeta pode adquirir muitas cores e com seu preço
-             acessível é possível decorar muito bem a casa. Deve ser regada
-             pelo menos duas vezes por semana e exposta somente a
+             description="""A violeta pode adquirir muitas cores e com seu
+             preço acessível é possível decorar muito bem a casa. Deve ser
+             regada pelo menos duas vezes por semana e exposta somente a
              luz indireta.""",
              category=category4)
 
@@ -159,10 +159,11 @@ session.add(category7)
 session.commit()
 
 Item13 = Item(name="Doril",
-              description="""doril é o nome de uma flor, que é eficaz contra dor
-              de cabeça. Basta tomar um chá de folhas de Doril, mas para que
-              ele realmente tenha efeito, é preciso cuidar e deixar a planta em
-              ambientes com muita claridade, e regá-la todos os dias.""",
+              description="""doril é o nome de uma flor, que é eficaz contra
+              dor de cabeça. Basta tomar um chá de folhas de Doril, mas para
+              que ele realmente tenha efeito, é preciso cuidar e deixar a
+              planta em ambientes com muita claridade, e regá-la todos os
+              dias.""",
               category=category7)
 
 session.add(Item13)
