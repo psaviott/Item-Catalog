@@ -4,10 +4,12 @@ from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
 import random
 import string
-from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
-
+from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer)
+from itsdangerous import (TimedJSONWebSignatureSerializer as BadSignature)
+from itsdangerous import (TimedJSONWebSignatureSerializer as SignatureExpired)
 Base = declarative_base()
-secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+secret_key = ''.join(random.choice(
+                    string.ascii_uppercase + string.digits) for x in range(32))
 
 
 class User(Base):

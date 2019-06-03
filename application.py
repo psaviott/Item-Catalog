@@ -26,6 +26,7 @@ CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Item-Catalog"
 
+
 # Create anti-forgery state token
 @app.route('/login')
 def showLogin():
@@ -33,6 +34,7 @@ def showLogin():
                                   string.digits) for x in range(32))
     login_session['state'] = state
     return render_template('login.html', STATE=state, CLIENT_ID=CLIENT_ID)
+
 
 # Disconnect based on provider
 @app.route('/disconnect')
@@ -49,6 +51,7 @@ def disconnect():
         del login_session['provider']
         flash("You have successfully been logged out.")
         return redirect(url_for('catalogFunction'))
+
 
 # Create Login with Google account
 @app.route('/gconnect', methods=['POST'])
@@ -168,6 +171,7 @@ def getUserID(email):
     except BaseException:
         return None
 
+
 # Create Logout for Google account
 @app.route('/gdisconnect')
 def gdisconnect():
@@ -191,6 +195,7 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
+
 # Add JSON API Endpoint for categories
 # Fix: display items into the correct catalog
 @app.route('/category/JSON')
@@ -200,12 +205,14 @@ def categoriesJSON():
     return jsonify(Categories=[
         i.serialize for i in category], Items=[i.serialize for i in items])
 
+
 # Add JSON API Endpoint for a category items
 @app.route('/category/<int:category_id>/items/JSON')
 def categoriesItemsJSON(category_id):
     category2 = session.query(Category).filter_by(id=category_id).one()
     items = session.query(Item).filter_by(category_id=category_id).all()
     return jsonify(Items=[i.serialize for i in items])
+
 
 # Add JSON API Endpoint for a item
 @app.route('/category/<int:category_id>/items/<int:item_id>/JSON')
@@ -242,6 +249,7 @@ def catalogFunction():
             return render_template(
                 'catalog.html', plantas=category, itemName=items)
 
+
 # Create the app.route functions for create a new category
 @app.route('/category/new', methods=['GET', "POST"])
 def newCategoryFunction():
@@ -259,6 +267,7 @@ def newCategoryFunction():
         return redirect(url_for('catalogFunction', category=category))
     else:
         return render_template('newCategory.html', category=category)
+
 
 # Create route for edit a category
 @app.route('/category/<int:category_id>/edit', methods=['GET', "POST"])
@@ -283,6 +292,7 @@ def editCategoryFunction(category_id):
         return redirect(url_for('catalogFunction', category2=category2))
     else:
         return render_template('editCategory.html', category2=category2)
+
 
 # Create route for delete a category
 @app.route('/category/<int:category_id>/delete', methods=['GET', "POST"])
@@ -310,6 +320,7 @@ def deleteCategoryFunction(category_id):
         return redirect(url_for('catalogFunction', plantas=category))
     else:
         return render_template('deleteCategory.html', category2=category2)
+
 
 # Create route to display the items for the selected category
 @app.route('/category/<int:category_id>/items')
@@ -345,6 +356,7 @@ def categoryFunction(category_id):
                 'category.html',
                 plantas=category, plantas2=category2, itemName=items)
 
+
 # Create the app.route function to display item
 @app.route('/category/<int:category_id>/items/<int:item_id>')
 def itemFunction(category_id, item_id):
@@ -366,6 +378,7 @@ def itemFunction(category_id, item_id):
     else:
         return render_template('item.html', itemName=items, category=category2)
 
+
 # Create the app.route function to add new item to category
 @app.route('/category/<int:category_id>/items/new', methods=['GET', "POST"])
 def newItemFunction(category_id):
@@ -381,7 +394,8 @@ def newItemFunction(category_id):
     if request.method == 'POST':
         newItem = Item(
             name=request.form['name'], description=request.form['description'],
-            category_id=request.form['category'], user_id=login_session['user_id'])
+            category_id=request.form[
+                'category'], user_id=login_session['user_id'])
         session.add(newItem)
         session.commit()
         flash("New menu item created!")
@@ -393,7 +407,8 @@ def newItemFunction(category_id):
 
 
 # Create the app.route function to edit item
-@app.route('/category/<int:category_id>/items/<int:item_id>/edit', methods=['GET', 'POST'])
+@app.route('/category/<int:category_id>/items/<int:item_id>/edit',
+           methods=['GET', 'POST'])
 def editItemFunction(category_id, item_id):
     category = session.query(Category)
     category2 = session.query(Category).filter_by(id=category_id).first()
@@ -410,7 +425,8 @@ def editItemFunction(category_id, item_id):
     # Check if user is logged. If not, redirect to the login page
     if 'username' not in login_session:
         return redirect('/login')
-    # Check if the logged user is the creator of the item. If not, display a authorization error message
+    # Check if the logged user is the creator of the item. If not, display
+    # an authorization error message
     if login_session['user_id'] != editItem.user_id:
         flash("You not authorizated to edit this item.")
         return redirect(url_for('catalogFunction'))
@@ -432,8 +448,10 @@ def editItemFunction(category_id, item_id):
             'editItem.html',
             category=category, category2=category2, editItem=editItem)
 
+
 # Create the app.route function to delete a item
-@app.route('/category/<int:category_id>/items/<int:item_id>/delete', methods=['GET', "POST"])
+@app.route('/category/<int:category_id>/items/<int:item_id>/delete',
+           methods=['GET', "POST"])
 def deleteItemFunction(category_id, item_id):
     category2 = session.query(Category).filter_by(id=category_id).first()
     # Check if the inserted category id exist in db
@@ -449,7 +467,8 @@ def deleteItemFunction(category_id, item_id):
     # Check if user is logged. If not, redirect to the login page
     if 'username' not in login_session:
         return redirect('/login')
-    # Check if the logged user is the creator of the item. If not, display a authorization error message
+    # Check if the logged user is the creator of the item. If not, display
+    # an authorization error message
     if login_session['user_id'] != deleteItem.user_id:
         flash("You not authorizated to delete this item.")
         return redirect(url_for('catalogFunction'))
