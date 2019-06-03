@@ -35,9 +35,9 @@ This project use a Python3 web server. You can run this in a virtual machine. If
     ```
 
 5. Access the main page of the application:
-```
-  http://localhost:5000/
-```
+    ```
+      http://localhost:5000/
+    ```
 
 ## Running the tests
 
@@ -45,36 +45,36 @@ The endpoints can be acessible for all clients, but some pages is only available
 
 ### List of HTML Endpoints:
 
-> * List all categories: **/category**
+> * List all categories: `/category`
 >   * example: http://localhost:5000/category
-> * Create a new category: **/category/news**
+> * Create a new category: `/category/news`
 >   * example: http://localhost:5000/category/new
-> * Edit a category: **/category/<int:category_id>/edit**
+> * Edit a category:     `/category/<int:category_id>/edit`
 >   * example: http://localhost:5000/category/1/edit
-> * Delete a category: **/category/<int:category_id>/delete**
+> * Delete a category: `/category/<int:category_id>/delete`
 >   * example: http://localhost:5000/category/1/delete
 > * List all items for the category:
-> **/category/<int:category_id>/items**
+> `/category/<int:category_id>/items`
 >   * example: http://localhost:5000/category/1/items
 > * Display an item:
-> **/category/<int:category_id>/items/<int:item_id>**
+> `/category/<int:category_id>/items/<int:item_id>`
 >   * example: http://localhost:5000/category/1/items/1
-> * Add an item: **/category/<int:category_id>/items/new**
+> * Add an item: `/category/<int:category_id>/items/new`
 >   * example: http://localhost:5000/category/1/items/news
 > * Edit an item:
-> **/category/<int:category_id>/items/<int:item_id>/edit**
+> `/category/<int:category_id>/items/<int:item_id>/edit`
 >   * example: http://localhost:5000/category/1/items/1/edit
 > * Delete an item:
-> **/category/<int:category_id>/items/<int:item_id>/delete**
+> `/category/<int:category_id>/items/<int:item_id>/delete`
 >   * example: http://localhost:5000/category/1/items/1/delete
 
 ### List of JSON Endpoint
 
-> * List categories with respective items: **/category/JSON**
+> * List categories with respective items: `/category/JSON`
 >  * example: http://localhost:5000/category/JSON
-> * List all items for the category: **/category/<int:category_id>/items/JSON**
+> * List all items for the category: `/category/<int:category_id>/items/JSON`
 >  * example: http://localhost:5000/category/1/JSON
-> * Display item infos: **/category/<int:category_id>/items/<int:item_id>/JSON**
+> * Display item infos: `/category/<int:category_id>/items/<int:item_id>/JSON`
 >  * example: http://localhost:5000/category/1/items/1/JSON
 
 ## Built With
