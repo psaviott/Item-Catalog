@@ -1,5 +1,14 @@
-from flask import Flask, request, render_template
-from flask import jsonify, url_for, redirect, flash, json
+from flask import (
+    Flask,
+    request,
+    render_template,
+    jsonify,
+    url_for,
+    redirect,
+    flash,
+    json,
+    make_response
+)
 import requests
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker, relationship
@@ -11,8 +20,6 @@ import string
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
-from flask import make_response
-import requests
 
 app = Flask(__name__)
 
